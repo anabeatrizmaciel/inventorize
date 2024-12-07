@@ -9,6 +9,7 @@ const PORT = 5000;
 app.use(cors());
 app.use(bodyParser.json());
 
+//Interligar com o banco de dados
 const dbConfig = {
   host: "127.0.0.1", 
   user: "root", 
@@ -31,31 +32,38 @@ db.connect((err) => {
   console.log("Conectado ao banco de dados MySQL.");
 });
 
-//cadastrar produtos
-app.post("/products", (req, res) => {
-  const { name, code, brand, category, minStock, resalePrice, maxPeriod } = req.body;
+app.post("/produto", (req, res) => {
+  const {
+    codigo_produto, 
+    nome_produto,   
+    cod_marca,      
+    categoria,      
+    preco,          
+    qtd_minima,     
+    periodo_maximo, 
+  } = req.body;
 
-  // Validação dos dadoD
+  //Validar dados
   const errors = [];
-  if (!name || typeof name !== "string" || name.trim() === "") {
+  if (!nome_produto || typeof nome_produto !== "string" || nome_produto.trim() === "") {
     errors.push("Nome do produto é obrigatório e deve ser uma string válida.");
   }
-  if (!code || typeof code !== "string" || code.trim() === "") {
+  if (!codigo_produto || typeof codigo_produto !== "string" || codigo_produto.trim() === "") {
     errors.push("Código do produto é obrigatório e deve ser uma string válida.");
   }
-  if (!brand || typeof brand !== "string" || brand.trim() === "") {
-    errors.push("Marca é obrigatória e deve ser uma string válida.");
+  if (!cod_marca || typeof cod_marca !== "number" || cod_marca <= 0) {
+    errors.push("Código da marca é obrigatório e deve ser um número positivo.");
   }
-  if (!category || typeof category !== "string" || category.trim() === "") {
+  if (!categoria || typeof categoria !== "string" || categoria.trim() === "") {
     errors.push("Categoria é obrigatória e deve ser uma string válida.");
   }
-  if (!minStock || !Number.isInteger(Number(minStock)) || minStock <= 0) {
+  if (!qtd_minima || !Number.isInteger(Number(qtd_minima)) || qtd_minima <= 0) {
     errors.push("Quantidade mínima deve ser um número inteiro positivo.");
   }
-  if (!resalePrice || isNaN(resalePrice) || resalePrice <= 0) {
-    errors.push("Preço de revenda deve ser um número positivo.");
+  if (!preco || isNaN(preco) || preco <= 0) {
+    errors.push("Preço deve ser um número positivo.");
   }
-  if (!maxPeriod || !Number.isInteger(Number(maxPeriod)) || maxPeriod <= 0) {
+  if (!periodo_maximo || !Number.isInteger(Number(periodo_maximo)) || periodo_maximo <= 0) {
     errors.push("Período máximo deve ser um número inteiro positivo.");
   }
 
@@ -63,25 +71,25 @@ app.post("/products", (req, res) => {
     return res.status(400).json({ errors });
   }
 
-  // Query SQL para inserir o produto
+  //inserir o produto
   const sql = `
-    INSERT INTO produto (nome, codigo, cod_marca, categoria, qtd_minima, preco_revenda, periodo_maximo) 
+    INSERT INTO produto (codigo_produto, nome_produto, cod_marca, categoria, qtd_minima, preco, periodo_maximo) 
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
   const values = [
-    name.trim(),
-    code.trim(),
-    brand.trim(),
-    category.trim(),
-    parseInt(minStock, 10),
-    parseFloat(resalePrice).toFixed(2),
-    parseInt(maxPeriod, 10),
+    codigo_produto.trim(),
+    nome_produto.trim(),
+    parseInt(cod_marca, 10),
+    categoria.trim(),
+    parseInt(qtd_minima, 10),
+    parseFloat(preco).toFixed(2),
+    parseInt(periodo_maximo, 10),
   ];
 
   db.query(sql, values, (err, result) => {
     if (err) {
       console.error("Erro ao inserir produto no banco de dados:", err);
-      return res.status(500).json({ error: "Erro ao cadastrar produto. Tente novamente mais tarde." });
+      return res.status(500).json({ error: "Erro ao cadastrar produto. Tente novamente" });
     }
 
     return res.status(201).json({
