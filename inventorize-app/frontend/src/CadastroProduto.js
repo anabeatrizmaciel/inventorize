@@ -4,31 +4,32 @@ import "./CadastroProduto.css";
 
 const ProductForm = () => {
   const [formData, setFormData] = useState({
-    name: "",
-    code: "",
-    brand: "",
-    category: "",
-    minStock: "",
-    resalePrice: "",
-    maxPeriod: "",
+    nome_produto: "",
+    codigo_produto: "",
+    cod_marca: "", // Aqui, inicializamos como string vazia
+    categoria: "",
+    qtd_minima: "",
+    preco: "",
+    periodo_maximo: "",
   });
 
   const [errors, setErrors] = useState({});
   const [searchTerm, setSearchTerm] = useState(""); // estado para armazenar o termo de busca
   const [productList, setProductList] = useState([]); // lista de produtos 
-  
+
+  // atualização para as opções com valores numéricos para cod_marca
   const brandOptions = [
-    { value: "brand1", label: "Nestlé" },
-    { value: "brand2", label: "Coca-cola" },
-    { value: "brand3", label: "Unilever" },
-    { value: "brand4", label: "Colgate" },
-    { value: "brand5", label: "Danone" },
-    { value: "brand6", label: "Procter & Gamble" },
-    { value: "brand7", label: "Heinz, Kellogg's" },
-    { value: "brand8", label: "Nescafé" },
-    { value: "brand9", label: "PepsiCo" },
-    { value: "brand10", label: "Sadia" },
-    { value: "brand11", label: "Perdigão" },
+    { value: 1, label: "Nestlé" },
+    { value: 2, label: "Coca-cola" },
+    { value: 3, label: "Unilever" },
+    { value: 4, label: "Colgate" },
+    { value: 5, label: "Danone" },
+    { value: 6, label: "Procter & Gamble" },
+    { value: 7, label: "Heinz, Kellogg's" },
+    { value: 8, label: "Nescafé" },
+    { value: 9, label: "PepsiCo" },
+    { value: 10, label: "Sadia" },
+    { value: 11, label: "Perdigão" },
   ];
 
   const categoryOptions = [
@@ -56,40 +57,57 @@ const ProductForm = () => {
     setSearchTerm(e.target.value);
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
+    // Verifique os valores antes de enviar a requisição
+    console.log("Dados do Formulário Enviados:", formData);
+  
     const validationErrors = validateFields();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
     } else {
       setErrors({});
-
+  
       try {
-        // envia os dados do formulário para o backend
         const response = await fetch("http://localhost:5000/products", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify({
+            nome_produto: formData.nome_produto,  
+            codigo_produto: formData.codigo_produto, 
+            cod_marca: formData.cod_marca,
+            categoria: formData.categoria,
+            preco: formData.preco,
+            qtd_minima: formData.qtd_minima,
+            periodo_maximo: formData.periodo_maximo
+          }),
         });
-
+  
         if (!response.ok) {
           const errorData = await response.json();
           alert(`Erro ao cadastrar produto: ${errorData.error}`);
         } else {
           const responseData = await response.json();
           alert(responseData.message);
-          // resetar os campos do formulário
           setFormData({
-            name: "",
-            code: "",
-            brand: "",
-            category: "",
-            minStock: "",
-            resalePrice: "",
-            maxPeriod: "",
+            nome_produto: "",
+            codigo_produto: "",
+            cod_marca: "",
+            categoria: "",
+            qtd_minima: "",
+            preco: "",
+            periodo_maximo: "",
           });
         }
       } catch (error) {
@@ -98,31 +116,23 @@ const ProductForm = () => {
       }
     }
   };
-
-  // função para atualizar os campos do formulário
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
+    
 
   const validateFields = () => {
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = "O nome do produto é obrigatório.";
-    if (!formData.code.trim()) newErrors.code = "O código do produto é obrigatório.";
-    if (!formData.brand) newErrors.brand = "A marca é obrigatória.";
-    if (!formData.category) newErrors.category = "A categoria é obrigatória.";
-    if (!formData.minStock.trim()) newErrors.minStock = "A quantidade mínima é obrigatória.";
-    if (!formData.resalePrice.trim()) newErrors.resalePrice = "O preço de revenda é obrigatório.";
-    if (!formData.maxPeriod.trim()) newErrors.maxPeriod = "O período máximo é obrigatório.";
+    if (!formData.nome_produto.trim()) newErrors.nome_produto = "O nome do produto é obrigatório.";
+    if (!formData.codigo_produto.trim()) newErrors.codigo_produto = "O código do produto é obrigatório.";
+    if (!formData.cod_marca) newErrors.cod_marca = "A marca é obrigatória.";
+    if (!formData.categoria) newErrors.categoria = "A categoria é obrigatória.";
+    if (!formData.qtd_minima.trim()) newErrors.qtd_minima = "A quantidade mínima é obrigatória.";
+    if (!formData.preco.trim()) newErrors.preco = "O preço de revenda é obrigatório.";
+    if (!formData.periodo_maximo.trim()) newErrors.periodo_maximo = "O período máximo é obrigatório.";
     return newErrors;
   };
 
   const filteredProducts = productList.filter((product) =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.code.includes(searchTerm)
+    product.nome_produto.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.codigo_produto.includes(searchTerm)
   );
 
   return (
@@ -142,7 +152,7 @@ const ProductForm = () => {
           ) : (
             filteredProducts.map((product, index) => (
               <div key={index} className="search-result">
-                <p>{product.name} - {product.code}</p>
+                <p>{product.nome_produto} - {product.codigo_produto}</p>
               </div>
             ))
           )}
@@ -155,23 +165,23 @@ const ProductForm = () => {
             <label>Nome</label>
             <input
               type="text"
-              name="name"
+              name="nome_produto"
               placeholder="Digite o nome do produto"
-              value={formData.name}
+              value={formData.nome_produto}
               onChange={handleChange}
             />
-            {errors.name && <span className="error">{errors.name}</span>}
+            {errors.nome_produto && <span className="error">{errors.nome_produto}</span>}
           </div>
           <div className="form-group">
             <label>Código do Produto</label>
             <input
               type="text"
-              name="code"
+              name="codigo_produto"
               placeholder="Digite o código do produto"
-              value={formData.code}
+              value={formData.codigo_produto}
               onChange={handleChange}
             />
-            {errors.code && <span className="error">{errors.code}</span>}
+            {errors.codigo_produto && <span className="error">{errors.codigo_produto}</span>}
           </div>
         </div>
 
@@ -180,18 +190,18 @@ const ProductForm = () => {
             <DropdownList
               options={brandOptions}
               label="Selecionar Marca"
-              onChange={(value) => handleDropdownChange("brand", value)}
+              onChange={(value) => handleDropdownChange("cod_marca", value)} // Mudança aqui para enviar o valor numérico
             />
             <img src={"./botao.png"} className='botaozinho'/>
-            {errors.brand && <span className="error">{errors.brand}</span>}
+            {errors.cod_marca && <span className="error">{errors.cod_marca}</span>}
           </div>
           <div className="form-group">
             <DropdownList
               options={categoryOptions}
               label="Selecionar Categoria"
-              onChange={(value) => handleDropdownChange("category", value)}
+              onChange={(value) => handleDropdownChange("categoria", value)}
             />
-            {errors.category && <span className="error">{errors.category}</span>}
+            {errors.categoria && <span className="error">{errors.categoria}</span>}
           </div>
         </div>
 
@@ -200,23 +210,23 @@ const ProductForm = () => {
             <label>Qtde Mínima em Estoque</label>
             <input
               type="number"
-              name="minStock"
+              name="qtd_minima"
               placeholder="Digite a quantidade limite"
-              value={formData.minStock}
+              value={formData.qtd_minima}
               onChange={handleChange}
             />
-            {errors.minStock && <span className="error">{errors.minStock}</span>}
+            {errors.qtd_minima && <span className="error">{errors.qtd_minima}</span>}
           </div>
           <div className="form-group">
             <label>Preço Revenda</label>
             <input
               type="text"
-              name="resalePrice"
+              name="preco"
               placeholder="Digite o valor de revenda"
-              value={formData.resalePrice}
+              value={formData.preco}
               onChange={handleChange}
             />
-            {errors.resalePrice && <span className="error">{errors.resalePrice}</span>}
+            {errors.preco && <span className="error">{errors.preco}</span>}
           </div>
         </div>
 
@@ -225,12 +235,12 @@ const ProductForm = () => {
             <label>Período Máximo em Estoque</label>
             <input
               type="number"
-              name="maxPeriod"
+              name="periodo_maximo"
               placeholder="Digite o período em dias"
-              value={formData.maxPeriod}
+              value={formData.periodo_maximo}
               onChange={handleChange}
             />
-            {errors.maxPeriod && <span className="error">{errors.maxPeriod}</span>}
+            {errors.periodo_maximo && <span className="error">{errors.periodo_maximo}</span>}
           </div>
         </div>
 
