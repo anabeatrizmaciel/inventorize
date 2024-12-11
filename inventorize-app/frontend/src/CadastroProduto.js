@@ -6,7 +6,7 @@ const ProductForm = () => {
   const [formData, setFormData] = useState({
     nome_produto: "",
     codigo_produto: "",
-    cod_marca: "", // Aqui, inicializamos como string vazia
+    cod_marca: "",
     categoria: "",
     qtd_minima: "",
     preco: "",
@@ -68,7 +68,6 @@ const ProductForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    // Verifique os valores antes de enviar a requisição
     console.log("Dados do Formulário Enviados:", formData);
   
     const validationErrors = validateFields();
@@ -120,16 +119,35 @@ const ProductForm = () => {
 
   const validateFields = () => {
     const newErrors = {};
-    if (!formData.nome_produto.trim()) newErrors.nome_produto = "O nome do produto é obrigatório.";
-    if (!formData.codigo_produto.trim()) newErrors.codigo_produto = "O código do produto é obrigatório.";
-    if (!formData.cod_marca) newErrors.cod_marca = "A marca é obrigatória.";
-    if (!formData.categoria) newErrors.categoria = "A categoria é obrigatória.";
-    if (!formData.qtd_minima.trim()) newErrors.qtd_minima = "A quantidade mínima é obrigatória.";
-    if (!formData.preco.trim()) newErrors.preco = "O preço de revenda é obrigatório.";
-    if (!formData.periodo_maximo.trim()) newErrors.periodo_maximo = "O período máximo é obrigatório.";
+    
+    if (!formData.nome_produto.trim()) 
+      newErrors.nome_produto = "O nome do produto é obrigatório.";
+    
+    if (!formData.codigo_produto.trim()) 
+      newErrors.codigo_produto = "O código do produto é obrigatório.";
+    
+    if (!formData.cod_marca) 
+      newErrors.cod_marca = "A marca é obrigatória.";
+    
+    if (!formData.categoria) 
+      newErrors.categoria = "A categoria é obrigatória.";
+    
+    if (!formData.qtd_minima.trim() || isNaN(Number(formData.qtd_minima)) || Number(formData.qtd_minima) <= 0 || !Number.isInteger(Number(formData.qtd_minima))) {
+      newErrors.qtd_minima = "Quantidade mínima deve ser um número inteiro positivo.";
+    }
+    
+    const precoRegex = /^\d+(\.\d{1,2})?$/;
+    if (!formData.preco.trim() || !precoRegex.test(formData.preco) || Number(formData.preco) <= 0) {
+      newErrors.preco = "Preço inválido. Utilize um valor numérico maior que zero com até duas casas decimais.";
+    }
+    
+    if (!formData.periodo_maximo.trim() || isNaN(Number(formData.periodo_maximo)) || Number(formData.periodo_maximo) <= 0 || !Number.isInteger(Number(formData.periodo_maximo))) {
+      newErrors.periodo_maximo = "Período máximo de permanência deve ser um número inteiro positivo.";
+    }
+  
     return newErrors;
   };
-
+  
   const filteredProducts = productList.filter((product) =>
     product.nome_produto.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.codigo_produto.includes(searchTerm)

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 08/12/2024 às 00:21
+-- Tempo de geração: 11/12/2024 às 16:26
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -28,15 +28,21 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `produto` (
-  `id` int(11) NOT NULL,
-  `codigo_produto` varchar(50) NOT NULL,
-  `nome_produto` varchar(255) NOT NULL,
+  `codigo_produto` varchar(8) NOT NULL,
+  `nome_produto` varchar(100) NOT NULL,
   `cod_marca` int(11) NOT NULL,
-  `categoria` varchar(255) NOT NULL,
+  `categoria` varchar(50) NOT NULL,
   `qtd_minima` int(11) NOT NULL,
   `preco` decimal(10,2) NOT NULL,
   `periodo_maximo` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `produto`
+--
+
+INSERT INTO `produto` (`codigo_produto`, `nome_produto`, `cod_marca`, `categoria`, `qtd_minima`, `preco`, `periodo_maximo`) VALUES
+('12345678', 'danoninho', 5, 'category4', 20, 4.60, 90);
 
 --
 -- Índices para tabelas despejadas
@@ -46,17 +52,7 @@ CREATE TABLE `produto` (
 -- Índices de tabela `produto`
 --
 ALTER TABLE `produto`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT para tabelas despejadas
---
-
---
--- AUTO_INCREMENT de tabela `produto`
---
-ALTER TABLE `produto`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  ADD PRIMARY KEY (`codigo_produto`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
